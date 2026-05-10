@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Invisible Deck",
+    "price": 8.99,
+    "shop": "Magic Shop A",
+    "url": "https://example.com/invisible-deck"
+  },
+  {
+    "name": "Svengali Deck",
+    "price": 6.5,
+    "shop": "Magic Shop B",
+    "url": "https://example.com/svengali-deck"
+  },
+  {
+    "name": "Coin Vanish Gimmick",
+    "price": 12.99,
+    "shop": "Magic Shop C",
+    "url": "https://example.com/coin-vanish"
+  },
+  {
+    "name": "Sponge Balls",
+    "price": 4.99,
+    "shop": "Magic Shop D",
+    "url": "https://example.com/sponge-balls"
+  }
+]
