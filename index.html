@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Magic Price Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #e8e0d0;
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.1em;
+      color: #c9a84c;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+
+    .fields {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 20px;
+      background: #181818;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      color: #e8e0d0;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #c9a84c; }
+    input::placeholder { color: #444; }
+
+    button {
+      width: 100%;
+      max-width: 540px;
+      padding: 15px;
+      background: #c9a84c;
+      border: none;
+      border-radius: 4px;
+      color: #0a0a0a;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      margin-bottom: 40px;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #e0be6a; }
+
+    #status {
+      font-size: 0.75rem;
+      color: #555;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      min-height: 18px;
+    }
+
+    #results {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #222;
+      border-left: 3px solid #c9a84c;
+      padding: 16px 20px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: inherit;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: fadeUp 0.2s forwards;
+      transition: background 0.2s;
+    }
+
+    .card:hover { background: #1a1a1a; }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      color: #e8e0d0;
+      margin-bottom: 4px;
+    }
+
+    .card-shop { font-size: 0.75rem; color: #555; }
+
+    .card-price {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: #c9a84c;
+      white-space: nowrap;
+    }
+
+    .empty { color: #444; font-size: 0.9rem; text-align: center; margin-top: 20px; }
+
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2px solid #222;
+      border-top-color: #c9a84c;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 30px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <h1>✦ Magic Price Finder</h1>
+
+  <div class="fields">
+    <input type="text" id="magician" placeholder="Magician name" autocomplete="off"/>
+    <input type="text" id="product" placeholder="Product name" autocomplete="off"
+      onkeydown="if(event.key==='Enter') doSearch()"/>
+  </div>
+
+  <button onclick="doSearch()">Search</button>
+
+  <div id="status"></div>
+  <div id="results"></div>
+
+  <script>
+    async function doSearch() {
+      const magician = document.getElementById('magician').value.trim();
+      const product = document.getElementById('product').value.trim();
+      if (!magician && !product) return;
+
+      const q = [magician, product].filter(Boolean).join(' ');
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+
+      status.textContent = 'Searching…';
+      results.innerHTML = '<div class="spinner"></div>';
+
+      try {
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        const items = await res.json();
+
+        status.textContent = items.length ? `${items.length} results found` : '';
+
+        if (!items.length) {
+          results.innerHTML = '<p class="empty">No results found.</p>';
+          return;
+        }
+
+        results.innerHTML = items.map((item, i) => `
+          <a class="card" href="${item.url}" target="_blank" rel="noopener"
+            style="animation-delay:${i * 0.05}s">
+            <div>
+              <div class="card-name">${item.name}</div>
+              <div class="card-shop">${item.shop}</div>
+            </div>
+            <div class="card-price">${item.price}</div>
+          </a>
+        `).join('');
+
+      } catch(err) {
+        status.textContent = 'Something went wrong.';
+        results.innerHTML = '<p class="empty">Please try again.</p>';
+      }
+    }
+  </script>
+
+</body>
+</html>
