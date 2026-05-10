@@ -44,4 +44,4 @@ magic_finder/
 
 ## Updating your scraper later
 
-Just edit `scraper.py` on your Mac, re-upload to GitHub, Render updates automatically.
+Just edit `scraper.py`, re-upload to GitHub, Render updates automatically.
