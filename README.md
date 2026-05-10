@@ -38,7 +38,7 @@ magic_finder/
 2. Create a new cronjob
 3. Set the URL to your Render URL e.g. `https://magic-finder.onrender.com`
 4. Set it to run every **10 minutes**
-5. Save — your app will never sleep again
+5. Save. Your app will never sleep again :)
 
 ---
 
