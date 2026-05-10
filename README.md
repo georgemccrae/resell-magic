@@ -15,18 +15,7 @@ magic_finder/
 
 ---
 
-## Step 1 — Put this on GitHub
-
-1. Go to **github.com** and create a free account
-2. Click the **+** button → **New repository**
-3. Name it `magic-finder`, keep it Public, click **Create**
-4. Click **uploading an existing file**
-5. Drag ALL these files in (including the templates folder)
-6. Click **Commit changes**
-
----
-
-## Step 2 — Deploy on Render
+## Step 1 — Deploy on Render
 
 1. Go to **render.com** and create a free account
 2. Click **New** → **Web Service**
@@ -43,7 +32,7 @@ magic_finder/
 
 ---
 
-## Step 3 — Stop it sleeping (free fix)
+## Step 2 — Stop it sleeping (free fix)
 
 1. Go to **cron-job.org** and create a free account
 2. Create a new cronjob
