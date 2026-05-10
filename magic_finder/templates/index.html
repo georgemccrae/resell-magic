@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Magic Trick Price Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #e8e0d0;
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 60px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.4rem;
+      letter-spacing: 0.1em;
+      color: #c9a84c;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #666;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 50px;
+    }
+
+    .search-wrap {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    #q {
+      flex: 1;
+      padding: 16px 20px;
+      background: #181818;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      color: #e8e0d0;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #q:focus { border-color: #c9a84c; }
+    #q::placeholder { color: #444; }
+
+    button {
+      padding: 16px 24px;
+      background: #c9a84c;
+      border: none;
+      border-radius: 4px;
+      color: #0a0a0a;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #e0be6a; }
+
+    #status {
+      font-size: 0.8rem;
+      color: #555;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      min-height: 20px;
+    }
+
+    #results {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #222;
+      border-left: 3px solid #c9a84c;
+      padding: 18px 22px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: fadeUp 0.2s forwards;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .card:hover {
+      background: #1a1a1a;
+      border-left-color: #e0be6a;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-left { flex: 1; }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      color: #e8e0d0;
+      margin-bottom: 5px;
+    }
+
+    .card-shop {
+      font-size: 0.78rem;
+      color: #666;
+      letter-spacing: 0.1em;
+    }
+
+    .card-price {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: #c9a84c;
+      white-space: nowrap;
+    }
+
+    .empty {
+      color: #444;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #222;
+      border-top-color: #c9a84c;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 30px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <h1>✦ Magic Price Finder</h1>
+  <p class="subtitle">Search any magic trick — see prices instantly</p>
+
+  <div class="search-wrap">
+    <input type="text" id="q" placeholder="e.g. Svengali Deck, Linking Rings…" autocomplete="off"
+      onkeydown="if(event.key==='Enter') doSearch()"/>
+    <button onclick="doSearch()">Search</button>
+  </div>
+
+  <div id="status"></div>
+  <div id="results"></div>
+
+  <script>
+    async function doSearch() {
+      const q = document.getElementById('q').value.trim();
+      if (!q) return;
+
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+
+      status.textContent = 'Searching…';
+      results.innerHTML = '<div class="spinner"></div>';
+
+      try {
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        const items = await res.json();
+
+        status.textContent = items.length ? `${items.length} results found` : '';
+
+        if (!items.length) {
+          results.innerHTML = '<p class="empty">No results found. Try a different search.</p>';
+          return;
+        }
+
+        results.innerHTML = items.map((item, i) => `
+          <a class="card" href="${item.url}" target="_blank" rel="noopener"
+            style="animation-delay:${i * 0.05}s">
+            <div class="card-left">
+              <div class="card-name">${item.name}</div>
+              <div class="card-shop">${item.shop}</div>
+            </div>
+            <div class="card-price">${item.price}</div>
+          </a>
+        `).join('');
+
+      } catch (err) {
+        status.textContent = 'Something went wrong.';
+        results.innerHTML = '<p class="empty">Could not fetch results. Please try again.</p>';
+      }
+    }
+  </script>
+
+</body>
+</html>
